@@ -1,4 +1,4 @@
-# Copyright (c) 2015 Ultimaker B.V.
+# Copyright (c) 2017 Ultimaker B.V.
 # Uranium is released under the terms of the AGPLv3 or higher.
 
 from PyQt5.QtCore import QObject, pyqtProperty, Q_ENUMS, pyqtSignal
@@ -115,7 +115,3 @@ class Duration(QObject):
             return "%02d:%02d:%02d" % (self._days * 24 + self._hours, self._minutes, self._seconds)
 
         return ""
-
-    @pyqtProperty(int, notify = durationChanged)
-    def totalSeconds(self):
-        return self._days * 3600 * 24 + self._hours * 3600 + self._minutes * 60 + self._seconds
