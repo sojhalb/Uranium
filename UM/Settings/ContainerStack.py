@@ -195,8 +195,8 @@ class ContainerStack(QObject, ContainerInterface, PluginObject):
     #   Note that if the property value is a function, this method will return the
     #   result of evaluating that property with the current stack. If you need the
     #   actual function, use getRawProperty()
-    def getProperty(self, key: str, property_name: str, context: Optional[PropertyEvaluationContext] = None, skip_container = None):
-        value = self.getRawProperty(key, property_name, skip_container = skip_container)
+    def getProperty(self, key: str, property_name: str, context: Optional[PropertyEvaluationContext] = None):
+        value = self.getRawProperty(key, property_name)
         if isinstance(value, SettingFunction):
             if context is not None:
                 context.pushContainer(self)
@@ -218,14 +218,13 @@ class ContainerStack(QObject, ContainerInterface, PluginObject):
     #   \param skip_until_container A container ID to skip to. If set, it will
     #   be as if all containers above the specified container are empty. If the
     #   container is not in the stack, it'll try to find it in the next stack.
-    #   \param skip_container A container ID to skip to
     #
     #   \return The raw property value of the property, or None if not found. Note that
     #           the value might be a SettingFunction instance.
     #
-    def getRawProperty(self, key, property_name, *, use_next = True, skip_until_container = None, skip_container = None):
+    def getRawProperty(self, key, property_name, *, use_next = True, skip_until_container = None):
         for container in self._containers:
-            if (skip_until_container and container.getId() != skip_until_container) or (skip_container and container.getId() == skip_container):
+            if skip_until_container and container.getId() != skip_until_container:
                 continue #Skip.
             skip_until_container = None #When we find the container, stop skipping.
 
@@ -234,7 +233,7 @@ class ContainerStack(QObject, ContainerInterface, PluginObject):
                 return value
 
         if self._next_stack and use_next:
-            return self._next_stack.getRawProperty(key, property_name, use_next = use_next, skip_until_container = skip_until_container, skip_container = skip_container)
+            return self._next_stack.getRawProperty(key, property_name, use_next = use_next, skip_until_container = skip_until_container)
         else:
             return None
 

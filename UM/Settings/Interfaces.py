@@ -61,10 +61,9 @@ class ContainerInterface:
     #
     #   \param key \type{string} The key of the item to retrieve a property from.
     #   \param name \type{string} The name of the property to retrieve.
-    #   \param skip_container \type{string} The name of container to skip
     #
     #   \return The specified property value of the container item corresponding to key, or None if not found.
-    def getProperty(self, key: str, property_name: str, context: Optional[PropertyEvaluationContext] = None, skip_container: str = None) -> Any:
+    def getProperty(self, key: str, property_name: str, context: Optional[PropertyEvaluationContext] = None) -> Any:
         pass
 
     ##  Get whether the container item has a specific property.
