@@ -1,5 +1,5 @@
 # Copyright (c) 2016 Ultimaker B.V.
-# Uranium is released under the terms of the AGPLv3 or higher.
+# Uranium is released under the terms of the LGPLv3 or higher.
 import configparser
 import io
 from typing import Set, List, Optional, cast
@@ -47,6 +47,9 @@ MimeTypeDatabase.addMimeType(
 @signalemitter
 class ContainerStack(QObject, ContainerInterface, PluginObject):
     Version = 3 # type: int
+
+
+    skip_global_container_id = None
 
     ##  Constructor
     #
@@ -224,7 +227,7 @@ class ContainerStack(QObject, ContainerInterface, PluginObject):
     #
     def getRawProperty(self, key, property_name, *, use_next = True, skip_until_container = None):
         for container in self._containers:
-            if skip_until_container and container.getId() != skip_until_container:
+            if (skip_until_container and container.getId() != skip_until_container) or (ContainerStack.skip_global_container_id and ContainerStack.skip_global_container_id == container.getId()):
                 continue #Skip.
             skip_until_container = None #When we find the container, stop skipping.
 
