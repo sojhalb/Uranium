@@ -48,9 +48,6 @@ MimeTypeDatabase.addMimeType(
 class ContainerStack(QObject, ContainerInterface, PluginObject):
     Version = 3 # type: int
 
-
-    skip_global_container_id = None
-
     ##  Constructor
     #
     #   \param stack_id \type{string} A unique, machine readable/writable ID.
@@ -225,18 +222,23 @@ class ContainerStack(QObject, ContainerInterface, PluginObject):
     #   \return The raw property value of the property, or None if not found. Note that
     #           the value might be a SettingFunction instance.
     #
-    def getRawProperty(self, key, property_name, *, use_next = True, skip_until_container = None):
+    def getRawProperty(self, key, property_name, *, use_next = True, skip_until_container = None, skip_user_container = False):
+
         for container in self._containers:
-            if (skip_until_container and container.getId() != skip_until_container) or (ContainerStack.skip_global_container_id and ContainerStack.skip_global_container_id == container.getId()):
+            if skip_until_container and container.getId() != skip_until_container:
                 continue #Skip.
             skip_until_container = None #When we find the container, stop skipping.
+
+            # some containers might not have type members
+            if skip_user_container and "type" in container._metadata and "user" in container._metadata["type"]:
+                continue
 
             value = container.getProperty(key, property_name)
             if value is not None:
                 return value
 
         if self._next_stack and use_next:
-            return self._next_stack.getRawProperty(key, property_name, use_next = use_next, skip_until_container = skip_until_container)
+            return self._next_stack.getRawProperty(key, property_name, use_next = use_next, skip_until_container = skip_until_container, skip_user_container = skip_user_container)
         else:
             return None
 

@@ -55,7 +55,7 @@ class SettingFunction:
             Logger.log("e", "Exception in function ({0}) for setting: {1}".format(str(e), self._code))
 
     ##  Call the actual function to calculate the value.
-    def __call__(self, value_provider: ContainerInterface, context: Optional[PropertyEvaluationContext] = None) -> Any:
+    def __call__(self, value_provider: ContainerInterface, context: Optional[PropertyEvaluationContext] = None, options: Dict[str, Any] = None) -> Any:
         if not value_provider:
             return None
 
@@ -72,6 +72,11 @@ class SettingFunction:
                 continue
 
             locals[name] = value
+
+        if options and isinstance(options, Dict):
+            locals["options"] = options
+        else:
+            locals["options"] = None
 
         g = {}  # type: Dict[str, Any]
         g.update(globals())
