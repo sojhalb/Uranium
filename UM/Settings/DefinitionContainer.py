@@ -443,6 +443,8 @@ class DefinitionContainer(QObject, DefinitionContainerInterface, PluginObject):
             relation = SettingRelation(definition, other, RelationType.RequiresTarget, property)
             definition.relations.append(relation)
 
+            definition.dependentRelationKeys.add(relation.target.key)
+
             relation = SettingRelation(other, definition, RelationType.RequiredByTarget, property)
             other.relations.append(relation)
 

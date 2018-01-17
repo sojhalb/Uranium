@@ -642,9 +642,23 @@ class ContainerStack(QObject, ContainerInterface, PluginObject):
             signal, signal_arg = self._postponed_emits.pop(0)
             signal.emit(signal_arg)
 
+    test_counter = 0
+
     ##  Check if the container stack has errors
     @UM.FlameProfiler.profile
-    def hasErrors(self) -> bool:
+    def hasErrors(self, check_all_properties = True) -> bool:
+
+        if not check_all_properties:
+            ContainerStack.test_counter = 0
+            validated_keys = []
+            result = False
+            for key in self.getTop().getAllKeys():
+                result = self.validateSettingKeyAndItsRelationKeys(key, validated_keys)
+
+            print("ContainerStack.test_counter: " + str(ContainerStack.test_counter))
+            return result
+
+
         for key in self.getAllKeys():
             enabled = self.getProperty(key, "enabled")
             if not enabled:
@@ -661,6 +675,36 @@ class ContainerStack(QObject, ContainerInterface, PluginObject):
                     validation_state = validator(self)
             if validation_state in (ValidatorState.Exception, ValidatorState.MaximumError, ValidatorState.MinimumError):
                 return True
+        return False
+
+    ##  Recursive function to check whether setting key and it relation keys have error or not
+    #   \param relation_key The setting key.
+    #   \param validated_keys The setting keys which where already validated.
+    def validateSettingKeyAndItsRelationKeys(self, relation_key, validated_keys):
+
+        validated_keys.append(relation_key)
+        ContainerStack.test_counter += 1
+        enabled = self.getProperty(relation_key, "enabled")
+        if enabled:
+            definition = self.getSettingDefinition(relation_key)
+            validation_state = self.getProperty(relation_key, "validationState")
+
+            if validation_state is None:
+                validator_type = SettingDefinition.getValidatorForType(definition.type)
+                if validator_type:
+                    validator = validator_type(relation_key)
+                    validation_state = validator(self)
+
+                if validation_state in (ValidatorState.Exception, ValidatorState.MaximumError, ValidatorState.MinimumError):
+                    return True
+
+            for x in definition.dependentRelationKeys:
+                if x in validated_keys:
+                    continue
+
+                if self.validateSettingKeyAndItsRelationKeys(x, validated_keys):
+                    return True
+
         return False
 
     ##  Get all the keys that are in an error state in this stack

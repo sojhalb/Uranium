@@ -88,6 +88,7 @@ class SettingDefinition:
 
         self._children = []     # type: List[SettingDefinition]
         self._relations = []    # type: List[SettingRelation]
+        self._dependent_relation_keys = set()  # type: List[String]
 
         # Cached set of keys of ancestors. Used for fast lookups of ancestors.
         self.__ancestors = set()  # type: Set[str]
@@ -162,6 +163,10 @@ class SettingDefinition:
     @property
     def relations(self) -> List["SettingRelation"]:
         return self._relations
+
+    @property
+    def dependentRelationKeys(self) -> List["String"]:
+        return self._dependent_relation_keys
 
     ##  Serialize this setting to a string.
     #

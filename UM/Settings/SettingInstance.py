@@ -241,6 +241,10 @@ class SettingInstance:
             changed_relations = set()   # type: Set[SettingRelation]
             self._addRelations(changed_relations, self._definition.relations, property_name)
 
+
+            for item in changed_relations:
+                self.definition.dependentRelationKeys.add(item.target.key)
+
             # TODO: We should send this as a single change event instead of several of them.
             # That would increase performance by reducing the amount of updates.
             for relation in changed_relations:
