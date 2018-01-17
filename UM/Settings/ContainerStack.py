@@ -679,7 +679,6 @@ class ContainerStack(QObject, ContainerInterface, PluginObject):
     def validateSettingKeyAndItsRelationKeys(self, relation_key, validated_keys):
 
         validated_keys.append(relation_key)
-        ContainerStack.test_counter += 1
         enabled = self.getProperty(relation_key, "enabled")
         if enabled:
             definition = self.getSettingDefinition(relation_key)
