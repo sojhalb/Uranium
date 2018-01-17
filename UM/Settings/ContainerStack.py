@@ -642,20 +642,16 @@ class ContainerStack(QObject, ContainerInterface, PluginObject):
             signal, signal_arg = self._postponed_emits.pop(0)
             signal.emit(signal_arg)
 
-    test_counter = 0
-
     ##  Check if the container stack has errors
     @UM.FlameProfiler.profile
     def hasErrors(self, check_all_properties = True) -> bool:
 
         if not check_all_properties:
-            ContainerStack.test_counter = 0
             validated_keys = []
             result = False
             for key in self.getTop().getAllKeys():
                 result = self.validateSettingKeyAndItsRelationKeys(key, validated_keys)
 
-            print("ContainerStack.test_counter: " + str(ContainerStack.test_counter))
             return result
 
 
