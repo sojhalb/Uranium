@@ -326,7 +326,7 @@ class ContainerRegistry(ContainerRegistryInterface):
                 for container_id in list(provider.getAllIds()): #Make copy of all IDs since it might change during iteration.
                     if container_id not in self._containers:
                         #Update UI while loading.
-                        UM.Qt.QtApplication.QtApplication.getInstance().processEvents() #Update the user interface because loading takes a while. Specifically the loading screen.
+                        #UM.Qt.QtApplication.QtApplication.getInstance().processEvents() #Update the user interface because loading takes a while. Specifically the loading screen.
 
                         self._containers[container_id] = provider.loadContainer(container_id)
                         self.metadata[container_id] = self._containers[container_id].getMetaData()
