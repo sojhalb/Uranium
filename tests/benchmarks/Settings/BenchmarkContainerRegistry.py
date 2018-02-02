@@ -3,11 +3,14 @@
 
 import os.path
 import pytest
+import copy
 
 from UM.MimeTypeDatabase import MimeType, MimeTypeDatabase
 from UM.Resources import Resources
-from UM.PluginRegistry import PluginRegistry
+
 from UM.Settings.ContainerRegistry import ContainerRegistry
+from plugins.LocalContainerProvider.LocalContainerProvider import LocalContainerProvider
+from UM.PluginRegistry import PluginRegistry
 
 @pytest.fixture
 def container_registry(application):
@@ -35,22 +38,57 @@ def container_registry(application):
         )
     )
 
-    Resources.addSearchPath(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", "Settings")))
     ContainerRegistry._ContainerRegistry__instance = None # Reset the private instance variable every time
     PluginRegistry.getInstance().removeType("settings_container")
 
+    PluginRegistry.addType("container_provider", LocalContainerProvider)
+    PluginRegistry.getInstance().loadPlugin("LocalContainerProvider")
+    l = PluginRegistry.getInstance().getPluginObject("LocalContainerProvider")
+    ContainerRegistry.getInstance().addProvider(l)
+
+    s = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", "Settings"))
+    Resources.addSearchPath(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", "Settings")))
+
+    empty_container = ContainerRegistry.getInstance().getEmptyInstanceContainer()
+
+    empty_definition_changes_container = copy.deepcopy(empty_container)
+    empty_definition_changes_container.setMetaDataEntry("id", "empty_definition_changes")
+    empty_definition_changes_container.addMetaDataEntry("type", "definition_changes")
+    ContainerRegistry.getInstance().addContainer(empty_definition_changes_container)
+
+    empty_variant_container = copy.deepcopy(empty_container)
+    empty_variant_container.setMetaDataEntry("id", "empty_variant")
+    empty_variant_container.addMetaDataEntry("type", "variant")
+    ContainerRegistry.getInstance().addContainer(empty_variant_container)
+
+    empty_material_container = copy.deepcopy(empty_container)
+    empty_material_container.setMetaDataEntry("id", "empty_material")
+    empty_material_container.addMetaDataEntry("type", "material")
+    ContainerRegistry.getInstance().addContainer(empty_material_container)
+
+    empty_quality_container = copy.deepcopy(empty_container)
+    empty_quality_container.setMetaDataEntry("id", "empty_quality")
+    empty_quality_container.setName("Not Supported")
+    empty_quality_container.addMetaDataEntry("quality_type", "not_supported")
+    empty_quality_container.addMetaDataEntry("type", "quality")
+    empty_quality_container.addMetaDataEntry("supported", False)
+    ContainerRegistry.getInstance().addContainer(empty_quality_container)
+
+    empty_quality_changes_container = copy.deepcopy(empty_container)
+    empty_quality_changes_container.setMetaDataEntry("id", "empty_quality_changes")
+    empty_quality_changes_container.addMetaDataEntry("type", "quality_changes")
+    empty_quality_changes_container.addMetaDataEntry("quality_type", "not_supported")
+    ContainerRegistry.getInstance().addContainer(empty_quality_changes_container)
+
     ContainerRegistry.getInstance().load()
+
+
 
     return ContainerRegistry.getInstance()
 
 
 benchmark_findContainers_data = [
-    { "id": "basic" },
-    { "name": "Test"},
-    { "name": "T*" },
-    { "name": "Test", "category": "Test" },
-    { "name": "*", "category": "*" },
-    { "id": "*setting*" }
+    { "id": 'basic_definition' }
 ]
 
 @pytest.mark.parametrize("query_args", benchmark_findContainers_data)
