@@ -3,7 +3,7 @@
 
 import os
 
-from PyQt5.QtCore import Qt, QCoreApplication, pyqtSlot, pyqtProperty
+from PyQt5.QtCore import Qt, QCoreApplication, pyqtSlot, pyqtProperty, pyqtSignal
 
 from UM.Application import Application
 from UM.Qt.ListModel import ListModel
@@ -43,11 +43,14 @@ class PluginsModel(ListModel):
 
         self._update();
 
-    def setView(self, new_view):
-        self._view = new_view
-        self._update()
+    def setView(self, view):
+        if self._view != view:
+            self._view = view
+            self.viewChanged.emit()
+            self._update()
 
-    @pyqtProperty(str, fset = setView)
+    viewChanged = pyqtSignal()
+    @pyqtProperty(str, fset = setView, notify = viewChanged)
     def view(self):
         return self._view
 
@@ -55,11 +58,14 @@ class PluginsModel(ListModel):
 
         if self._view == "available":
             self._plugins = self._registry.getExternalPlugins()
+            Logger.log("i", "Switching to available plugins.")
 
         else:
             self._plugins = self._registry.getInstalledPlugins()
+            Logger.log("i", "Switching to installed plugins.")
 
         items = []
+
         # Get all active plugins from registry (list of strings):
         active_plugins = self._registry.getActivePlugins()
         installed_plugins = self._registry.getInstalledPlugins()
@@ -67,9 +73,7 @@ class PluginsModel(ListModel):
 
         # Metadata is used as the official list of "all plugins":
         for plugin_id in self._plugins:
-
             print(plugin_id)
-
             metadata = self._registry.getMetaData(plugin_id)
 
             if "plugin" not in metadata:
