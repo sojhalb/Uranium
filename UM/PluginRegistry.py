@@ -100,6 +100,9 @@ class PluginRegistry(QObject):
                     "plugin": plugin,
                     "update_url": plugin["file_location"]
                 }
+                # If a plugin is already installed, still save it's update URL:
+            else:
+                self._metadata[plugin["id"]]["update_url"] = plugin["file_location"]
 
             # Keep a note of plugins which are not Ultimaker plugins:
             self._plugins_external.append(plugin["id"])
