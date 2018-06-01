@@ -75,6 +75,7 @@ class QtApplication(QApplication, Application):
 
         super().__init__(sys.argv, **kwargs)
 
+        self.setStyle("fusion")
         self.setAttribute(Qt.AA_UseDesktopOpenGL)
         major_version, minor_version, profile = OpenGLContext.detectBestOpenGLVersion()
 
