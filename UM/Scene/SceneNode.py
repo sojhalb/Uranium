@@ -69,7 +69,7 @@ class SceneNode:
         self._selectable = False  # type: bool
 
         # Should the AxisAlignedBoundingBox be re-calculated?
-        self._calculate_aabb = True  # type: bool
+        self._calculate_aabb = False  # type: bool
 
         # The AxisAligned bounding box.
         self._aabb = None  # type: Optional[AxisAlignedBox]
